@@ -36,6 +36,7 @@ void PrintBuffer(int bufferNum)
    int copyCnt = CopyBuffer(g_handleCustom, bufferNum, i_BufferStartPos, i_BufferCount, buffer);
 
    PrintFormat("======================== Buffer %d =========================", bufferNum);
+   ArraySetAsSeries(buffer, true);
    for (int i = 0; i < copyCnt; i++)
       PrintFormat("[%d] %.5f", i + i_BufferStartPos, buffer[i]);
 }
