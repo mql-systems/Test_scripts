@@ -18,7 +18,7 @@ enum PBBS_TREND
 };
 
 //--- inputs
-input int i_Bar = 5; // Bar
+input uint i_Bar = 0; // Bar index (0=BarOnDropped)
 
 //--- global variables
 datetime g_BarTime;
@@ -33,17 +33,34 @@ double   g_BarClose;
 void OnStart()
 {
    Print("=====================");
+   
+   int bar = 0;
+   if (i_Bar == 0)
+   {
+      datetime timeOnDropped = ChartTimeOnDropped();
+      if (timeOnDropped > 0)
+      {
+         bar = iBarShift(NULL, 0, timeOnDropped, true);
+         if (bar > 0)
+            bar--;
+         else
+            bar = 0;
+      }
+   }
+   else
+      bar = (int)i_Bar;
 
-   g_BarTime = iTime(_Symbol, PERIOD_CURRENT, i_Bar);
-   g_BarHigh = iHigh(_Symbol, PERIOD_CURRENT, i_Bar);
-   g_BarLow = iLow(_Symbol, PERIOD_CURRENT, i_Bar);
-   g_BarOpen = iOpen(_Symbol, PERIOD_CURRENT, i_Bar);
-   g_BarClose = iClose(_Symbol, PERIOD_CURRENT, i_Bar);
-   //---
-   double prevBarHigh = iHigh(_Symbol, PERIOD_CURRENT, i_Bar + 1);
-   double prevBarLow = iLow(_Symbol, PERIOD_CURRENT, i_Bar + 1);
-
+   g_BarTime = iTime(NULL, 0, bar);
+   g_BarHigh = iHigh(NULL, 0, bar);
+   g_BarLow = iLow(NULL, 0, bar);
+   g_BarOpen = iOpen(NULL, 0, bar);
+   g_BarClose = iClose(NULL, 0, bar);
+   
+   double prevBarHigh = iHigh(NULL, 0, bar + 1);
+   double prevBarLow = iLow(NULL, 0, bar + 1);
+   
    Print("Bar time: ", g_BarTime);
+   Print("Bar index: ", bar);
 
    // checking at the bar level
    if (prevBarHigh < g_BarHigh)
