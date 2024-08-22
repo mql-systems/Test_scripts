@@ -141,10 +141,12 @@ int PrevBarBreakSide(const datetime time, const double prevBarHigh, const double
    int ticksCnt = CopyTicksRange(_Symbol, ticks, COPY_TICKS_ALL, timeMs, timeMs + 60000);
    if (ticksCnt < 1)
       return PBBS_TREND_ERROR;
-   
+
    for (int i = 0; i < ticksCnt; i++)
    {
-      if (ticks[i].flags != TICK_FLAG_BID || ticks[i].bid < _Point)
+      // TODO: The tick flags do not match TICK_FLAG_*. They wrote to the forum https://www.mql5.com/ru/forum/471829.
+      //       We are waiting for a response for correction.
+      if (/* ticks[i].flags != TICK_FLAG_BID || */ ticks[i].bid < _Point)
          continue;
       if (prevBarHigh < ticks[i].bid)
          return PBBS_TREND_UP;
