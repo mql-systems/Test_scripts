@@ -8,9 +8,6 @@
 #property version "1.00"
 #property script_show_inputs
 
-//--- includes
-#include <ChartObjects/ChartObjectsArrows.mqh>
-
 //--- ENUMs
 enum PBBS_TREND
 {
@@ -24,7 +21,11 @@ enum PBBS_TREND
 input int i_Bar = 5; // Bar
 
 //--- global variables
-// CChartObjectArrow g_ChartObjArrows;
+datetime g_BarTime;
+double   g_BarHigh;
+double   g_BarLow;
+double   g_BarOpen;
+double   g_BarClose;
 
 //+------------------------------------------------------------------+
 //| Script program start function                                    |
@@ -33,23 +34,25 @@ void OnStart()
 {
    Print("=====================");
 
-   datetime time = iTime(_Symbol, PERIOD_CURRENT, i_Bar);
-   double high = iHigh(_Symbol, PERIOD_CURRENT, i_Bar);
-   double low = iLow(_Symbol, PERIOD_CURRENT, i_Bar);
+   g_BarTime = iTime(_Symbol, PERIOD_CURRENT, i_Bar);
+   g_BarHigh = iHigh(_Symbol, PERIOD_CURRENT, i_Bar);
+   g_BarLow = iLow(_Symbol, PERIOD_CURRENT, i_Bar);
+   g_BarOpen = iOpen(_Symbol, PERIOD_CURRENT, i_Bar);
+   g_BarClose = iClose(_Symbol, PERIOD_CURRENT, i_Bar);
    //---
    double prevBarHigh = iHigh(_Symbol, PERIOD_CURRENT, i_Bar + 1);
    double prevBarLow = iLow(_Symbol, PERIOD_CURRENT, i_Bar + 1);
 
    // checking at the bar level
-   if (high < prevBarHigh)
+   if (g_BarHigh < prevBarHigh)
    {
-      if (low < prevBarLow)
+      if (g_BarLow < prevBarLow)
       {
          PrintResult(PBBS_TREND_UP);
          return;
       }
    }
-   else if (low > prevBarLow)
+   else if (g_BarLow > prevBarLow)
    {
       PrintResult(PBBS_TREND_DOWN);
       return;
@@ -61,7 +64,7 @@ void OnStart()
    }
 
    // if there is a breakout on both sides, we look for which side broke first
-   switch (PrevBarBreakSide(time, prevBarHigh, prevBarLow))
+   switch (PrevBarBreakSide(g_BarTime, prevBarHigh, prevBarLow))
    {
       case PBBS_TREND_NONE:
          PrintResult(PBBS_TREND_NONE);
@@ -140,27 +143,49 @@ int PrevBarBreakSide(const datetime time, const double prevBarHigh, const double
  */
 void PrintResult(PBBS_TREND trend)
 {
+   long chartId = ChartID();
+   string arrowName = "PBBS_Trend";
+   double arrowPrice = g_BarHigh + (_Point * 10);
+
+   ObjectDelete(chartId, arrowName);
+
    switch (trend)
    {
       case PBBS_TREND_NONE:
+      {
          Print("TREND NONE");
+         ObjectCreate(chartId, arrowName, OBJ_ARROW, 0, g_BarTime, arrowPrice);
+         ObjectSetInteger(chartId, arrowName, OBJPROP_ARROWCODE, 220);
+         ObjectSetInteger(chartId, arrowName, OBJPROP_COLOR, clrOrange);
          break;
+      }
       case PBBS_TREND_UP:
+      {
          Print("TREND UP");
+         ObjectCreate(chartId, arrowName, OBJ_ARROW_UP, 0, g_BarTime, arrowPrice);
+         ObjectSetInteger(chartId, arrowName, OBJPROP_COLOR, clrGreen);
          break;
+      }
       case PBBS_TREND_DOWN:
+      {
          Print("TREND DOWN");
+         ObjectCreate(chartId, arrowName, OBJ_ARROW_DOWN, 0, g_BarTime, arrowPrice);
+         ObjectSetInteger(chartId, arrowName, OBJPROP_COLOR, clrRed);
          break;
+      }
       default:
       {
-         double open = iOpen(_Symbol, PERIOD_CURRENT, i_Bar);
-         double close = iClose(_Symbol, PERIOD_CURRENT, i_Bar);
-
-         Print("LIKELY TREND: ", (open > close ? "DOWN" : "UP"));
+         Print("LIKELY TREND: ", (g_BarOpen > g_BarClose ? "DOWN" : "UP"));
          Print("You should not hope for this calculation, since it considers open and close prices.");
+
+         ObjectCreate(chartId, arrowName, OBJ_ARROW_STOP, 0, g_BarTime, arrowPrice);
+         ObjectSetInteger(chartId, arrowName, OBJPROP_COLOR, clrRed);
          break;
       }
    }
+
+   ObjectSetInteger(chartId, arrowName, OBJPROP_ANCHOR, ANCHOR_BOTTOM);
+   ChartRedraw(chartId);
 }
 
 //+------------------------------------------------------------------+
