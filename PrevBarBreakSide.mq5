@@ -8,6 +8,9 @@
 #property version "1.00"
 #property script_show_inputs
 
+//--- includes
+#include <ChartObjects/ChartObjectsArrows.mqh>
+
 //--- ENUMs
 enum PBBS_TREND
 {
@@ -20,6 +23,9 @@ enum PBBS_TREND
 //--- inputs
 input int i_Bar = 5; // Bar
 
+//--- global variables
+// CChartObjectArrow g_ChartObjArrows;
+
 //+------------------------------------------------------------------+
 //| Script program start function                                    |
 //+------------------------------------------------------------------+
@@ -30,8 +36,6 @@ void OnStart()
    datetime time = iTime(_Symbol, PERIOD_CURRENT, i_Bar);
    double high = iHigh(_Symbol, PERIOD_CURRENT, i_Bar);
    double low = iLow(_Symbol, PERIOD_CURRENT, i_Bar);
-   double open = iOpen(_Symbol, PERIOD_CURRENT, i_Bar);
-   double close = iClose(_Symbol, PERIOD_CURRENT, i_Bar);
    //---
    double prevBarHigh = iHigh(_Symbol, PERIOD_CURRENT, i_Bar + 1);
    double prevBarLow = iLow(_Symbol, PERIOD_CURRENT, i_Bar + 1);
@@ -41,18 +45,18 @@ void OnStart()
    {
       if (low < prevBarLow)
       {
-         Print("TREND UP");
+         PrintResult(PBBS_TREND_UP);
          return;
       }
    }
    else if (low > prevBarLow)
    {
-      Print("TREND DOWN");
+      PrintResult(PBBS_TREND_DOWN);
       return;
    }
    else
    {
-      Print("TREND NONE");
+      PrintResult(PBBS_TREND_NONE);
       return;
    }
 
@@ -60,17 +64,16 @@ void OnStart()
    switch (PrevBarBreakSide(time, prevBarHigh, prevBarLow))
    {
       case PBBS_TREND_NONE:
-         Print("TREND NONE");
+         PrintResult(PBBS_TREND_NONE);
          break;
       case PBBS_TREND_UP:
-         Print("TREND UP");
+         PrintResult(PBBS_TREND_UP);
          break;
       case PBBS_TREND_DOWN:
-         Print("TREND DOWN");
+         PrintResult(PBBS_TREND_DOWN);
          break;
       default:
-         Print("LIKELY TREND: ", (open > close ? "DOWN" : "UP"));
-         Print("You should not hope for this calculation, since it considers open and close prices.");
+         PrintResult(PBBS_TREND_ERROR);
    }
 }
 
@@ -128,6 +131,36 @@ int PrevBarBreakSide(const datetime time, const double prevBarHigh, const double
    }
    
    return PBBS_TREND_NONE;
+}
+
+/**
+ * Print the result
+ * 
+ * @param  trend: Argument 1
+ */
+void PrintResult(PBBS_TREND trend)
+{
+   switch (trend)
+   {
+      case PBBS_TREND_NONE:
+         Print("TREND NONE");
+         break;
+      case PBBS_TREND_UP:
+         Print("TREND UP");
+         break;
+      case PBBS_TREND_DOWN:
+         Print("TREND DOWN");
+         break;
+      default:
+      {
+         double open = iOpen(_Symbol, PERIOD_CURRENT, i_Bar);
+         double close = iClose(_Symbol, PERIOD_CURRENT, i_Bar);
+
+         Print("LIKELY TREND: ", (open > close ? "DOWN" : "UP"));
+         Print("You should not hope for this calculation, since it considers open and close prices.");
+         break;
+      }
+   }
 }
 
 //+------------------------------------------------------------------+
