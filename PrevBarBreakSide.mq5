@@ -102,7 +102,7 @@ void OnStart()
 //+------------------------------------------------------------------+
 //| The breakdown side of the previous bar                           |
 //+------------------------------------------------------------------+
-int PrevBarBreakSide(const datetime time, const double prevBarHigh, const double prevBarLow)
+PBBS_TREND PrevBarBreakSide(const datetime time, const double prevBarHigh, const double prevBarLow)
 {
    long timeMs = time * 1000;
 
