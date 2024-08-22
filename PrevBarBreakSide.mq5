@@ -43,6 +43,8 @@ void OnStart()
    double prevBarHigh = iHigh(_Symbol, PERIOD_CURRENT, i_Bar + 1);
    double prevBarLow = iLow(_Symbol, PERIOD_CURRENT, i_Bar + 1);
 
+   Print("Bar time: ", g_BarTime);
+
    // checking at the bar level
    if (prevBarHigh < g_BarHigh)
    {
