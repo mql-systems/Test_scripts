@@ -32,8 +32,32 @@ void OnStart()
    double low = iLow(_Symbol, PERIOD_CURRENT, i_Bar);
    double open = iOpen(_Symbol, PERIOD_CURRENT, i_Bar);
    double close = iClose(_Symbol, PERIOD_CURRENT, i_Bar);
+   //---
+   double prevBarHigh = iHigh(_Symbol, PERIOD_CURRENT, i_Bar + 1);
+   double prevBarLow = iLow(_Symbol, PERIOD_CURRENT, i_Bar + 1);
 
-   switch (PrevBarBreakSide(time, high, low))
+   // checking at the bar level
+   if (high < prevBarHigh)
+   {
+      if (low < prevBarLow)
+      {
+         Print("TREND UP");
+         return;
+      }
+   }
+   else if (low > prevBarLow)
+   {
+      Print("TREND DOWN");
+      return;
+   }
+   else
+   {
+      Print("TREND NONE");
+      return;
+   }
+
+   // if there is a breakout on both sides, we look for which side broke first
+   switch (PrevBarBreakSide(time, prevBarHigh, prevBarLow))
    {
       case PBBS_TREND_NONE:
          Print("TREND NONE");
