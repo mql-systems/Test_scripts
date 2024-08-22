@@ -11,6 +11,7 @@
 //--- ENUMs
 enum PBBS_TREND
 {
+   PBBS_TREND_ERROR = -1,
    PBBS_TREND_NONE,
    PBBS_TREND_UP,
    PBBS_TREND_DOWN,
@@ -34,6 +35,9 @@ void OnStart()
 
    switch (PrevBarBreakSide(time, high, low))
    {
+      case PBBS_TREND_NONE:
+         Print("TREND NONE");
+         break;
       case PBBS_TREND_UP:
          Print("TREND UP");
          break;
@@ -82,14 +86,14 @@ int PrevBarBreakSide(const datetime time, const double high, const double low)
             return PBBS_TREND_NONE;
       }
       else
-         return PBBS_TREND_NONE;
+         return PBBS_TREND_ERROR;
    }
 
    // search in ticks
    MqlTick ticks[];
    int ticksCnt = CopyTicksRange(_Symbol, ticks, COPY_TICKS_ALL, timeMs, timeMs + 60000);
    if (ticksCnt < 1)
-      return PBBS_TREND_NONE;
+      return PBBS_TREND_ERROR;
    
    for (int i = 0; i < ticksCnt; i++)
    {
