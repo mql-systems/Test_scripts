@@ -44,15 +44,15 @@ void OnStart()
    double prevBarLow = iLow(_Symbol, PERIOD_CURRENT, i_Bar + 1);
 
    // checking at the bar level
-   if (g_BarHigh < prevBarHigh)
+   if (prevBarHigh < g_BarHigh)
    {
-      if (g_BarLow < prevBarLow)
+      if (prevBarLow < g_BarLow)
       {
          PrintResult(PBBS_TREND_UP);
          return;
       }
    }
-   else if (g_BarLow > prevBarLow)
+   else if (prevBarLow > g_BarLow)
    {
       PrintResult(PBBS_TREND_DOWN);
       return;
