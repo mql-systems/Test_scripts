@@ -17,7 +17,7 @@ enum PBBS_TREND
    PBBS_TREND_DOWN,
 };
 
-//--- global variables
+//--- inputs
 input int i_Bar = 5; // Bar
 
 //+------------------------------------------------------------------+
@@ -53,10 +53,8 @@ void OnStart()
 //+------------------------------------------------------------------+
 //| The breakdown side of the previous bar                           |
 //+------------------------------------------------------------------+
-int PrevBarBreakSide(const datetime time, const double high, const double low)
+int PrevBarBreakSide(const datetime time, const double prevBarHigh, const double prevBarLow)
 {
-   Print("Times: [", time, "], [", time + PeriodSeconds() - 1, "]");
-
    long timeMs = time * 1000;
 
    // search in M1
@@ -69,9 +67,9 @@ int PrevBarBreakSide(const datetime time, const double high, const double low)
          int i = 0;
          for (; i < ratesCnt; i++)
          {
-            if (high < rates[i].high)
+            if (prevBarHigh < rates[i].high)
             {
-               if (low > rates[i].low)
+               if (prevBarLow > rates[i].low)
                {
                   timeMs = rates[i].time * 1000;
                   break;  // search in ticks
@@ -79,7 +77,7 @@ int PrevBarBreakSide(const datetime time, const double high, const double low)
                else
                   return PBBS_TREND_UP;
             }
-            else if (low > rates[i].low)
+            else if (prevBarLow > rates[i].low)
                return PBBS_TREND_DOWN;
          }
          if (i >= ratesCnt)
@@ -99,9 +97,9 @@ int PrevBarBreakSide(const datetime time, const double high, const double low)
    {
       if (ticks[i].flags != TICK_FLAG_BID || ticks[i].bid < _Point)
          continue;
-      if (high < ticks[i].bid)
+      if (prevBarHigh < ticks[i].bid)
          return PBBS_TREND_UP;
-      else if (low > ticks[i].bid)
+      else if (prevBarLow > ticks[i].bid)
          return PBBS_TREND_DOWN;
    }
    
