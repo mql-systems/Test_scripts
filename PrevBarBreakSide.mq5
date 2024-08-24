@@ -114,7 +114,7 @@ PBBS_TREND PrevBarBreakSide(const datetime time, const double prevBarHigh, const
       if (ratesCnt > 0)
       {
          int i = 0;
-         for (; i < ratesCnt; i++)
+         for (; i < ratesCnt && ! IsStopped(); i++)
          {
             if (prevBarHigh < rates[i].high)
             {
@@ -142,7 +142,7 @@ PBBS_TREND PrevBarBreakSide(const datetime time, const double prevBarHigh, const
    if (ticksCnt < 1)
       return PBBS_TREND_ERROR;
 
-   for (int i = 0; i < ticksCnt; i++)
+   for (int i = 0; i < ticksCnt && ! IsStopped(); i++)
    {
       if ((ticks[i].flags & TICK_FLAG_BID) != TICK_FLAG_BID || ticks[i].bid < _Point)
          continue;
