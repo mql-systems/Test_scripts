@@ -26,13 +26,14 @@ double   g_BarHigh;
 double   g_BarLow;
 double   g_BarOpen;
 double   g_BarClose;
+string   g_PrintStr = "";
 
 //+------------------------------------------------------------------+
 //| Script program start function                                    |
 //+------------------------------------------------------------------+
 void OnStart()
 {
-   Print("=====================");
+   AddPrint("=====================");
    
    int bar = 0;
    if (i_Bar == 0)
@@ -59,8 +60,8 @@ void OnStart()
    double prevBarHigh = iHigh(NULL, 0, bar + 1);
    double prevBarLow = iLow(NULL, 0, bar + 1);
    
-   Print("Bar time: ", g_BarTime);
-   Print("Bar index: ", bar);
+   AddPrint("Bar time: " + TimeToString(g_BarTime));
+   AddPrint("Bar index: " + IntegerToString(bar));
 
    // checking at the bar level
    if (prevBarHigh < g_BarHigh)
@@ -97,6 +98,15 @@ void OnStart()
       default:
          PrintResult(PBBS_TREND_ERROR);
    }
+}
+
+/**
+ * Saves the line for further printing
+ * @param  addStr: Print string
+ */
+void AddPrint(string addStr)
+{
+   g_PrintStr += addStr + "\n";
 }
 
 //+------------------------------------------------------------------+
@@ -157,8 +167,7 @@ PBBS_TREND PrevBarBreakSide(const datetime time, const double prevBarHigh, const
 
 /**
  * Print the result
- * 
- * @param  trend: Argument 1
+ * @param  trend: PBBS_TREND type
  */
 void PrintResult(PBBS_TREND trend)
 {
@@ -172,7 +181,7 @@ void PrintResult(PBBS_TREND trend)
    {
       case PBBS_TREND_NONE:
       {
-         Print("TREND NONE");
+         AddPrint("Trend: NONE");
          ObjectCreate(chartId, arrowName, OBJ_ARROW, 0, g_BarTime, arrowPrice);
          ObjectSetInteger(chartId, arrowName, OBJPROP_ARROWCODE, 220);
          ObjectSetInteger(chartId, arrowName, OBJPROP_COLOR, clrOrange);
@@ -180,28 +189,31 @@ void PrintResult(PBBS_TREND trend)
       }
       case PBBS_TREND_UP:
       {
-         Print("TREND UP");
+         AddPrint("Trend: UP");
          ObjectCreate(chartId, arrowName, OBJ_ARROW_UP, 0, g_BarTime, arrowPrice);
          ObjectSetInteger(chartId, arrowName, OBJPROP_COLOR, clrGreen);
          break;
       }
       case PBBS_TREND_DOWN:
       {
-         Print("TREND DOWN");
+         AddPrint("Trend: DOWN");
          ObjectCreate(chartId, arrowName, OBJ_ARROW_DOWN, 0, g_BarTime, arrowPrice);
          ObjectSetInteger(chartId, arrowName, OBJPROP_COLOR, clrRed);
          break;
       }
       default:
       {
-         Print("LIKELY TREND: ", (g_BarOpen > g_BarClose ? "DOWN" : "UP"));
-         Print("You should not hope for this calculation, since it considers open and close prices.");
+         AddPrint("LIKELY TREND: "+ (g_BarOpen > g_BarClose ? "DOWN" : "UP"));
+         AddPrint("You should not hope for this calculation, since it considers open and close prices.");
 
          ObjectCreate(chartId, arrowName, OBJ_ARROW_STOP, 0, g_BarTime, arrowPrice);
          ObjectSetInteger(chartId, arrowName, OBJPROP_COLOR, clrRed);
          break;
       }
    }
+
+   Print(g_PrintStr);
+   Comment(g_PrintStr);
 
    ObjectSetInteger(chartId, arrowName, OBJPROP_ANCHOR, ANCHOR_BOTTOM);
    ChartRedraw(chartId);
