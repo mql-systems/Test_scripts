@@ -27,6 +27,7 @@ double   g_BarLow;
 double   g_BarOpen;
 double   g_BarClose;
 string   g_PrintStr = "";
+ulong    g_startMsecCount;
 
 //+------------------------------------------------------------------+
 //| Script program start function                                    |
@@ -34,6 +35,8 @@ string   g_PrintStr = "";
 void OnStart()
 {
    AddPrint("=====================");
+
+   g_startMsecCount = GetMicrosecondCount();
    
    int bar = 0;
    if (i_Bar == 0)
@@ -171,6 +174,8 @@ PBBS_TREND PrevBarBreakSide(const datetime time, const double prevBarHigh, const
  */
 void PrintResult(PBBS_TREND trend)
 {
+   AddPrint("Calc msec: " + IntegerToString(GetMicrosecondCount() - g_startMsecCount));
+
    long chartId = ChartID();
    string arrowName = "PBBS_Trend";
    double arrowPrice = g_BarHigh + (_Point * 10);
