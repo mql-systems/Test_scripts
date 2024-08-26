@@ -21,12 +21,12 @@ enum PBBS_TREND
 input uint i_Bar = 0; // Bar index (0=BarOnDropped)
 
 //--- global variables
-datetime g_BarTime;
-double   g_BarHigh;
-double   g_BarLow;
-double   g_BarOpen;
-double   g_BarClose;
-string   g_PrintStr = "";
+datetime g_barTime;
+double   g_barHigh;
+double   g_barLow;
+double   g_barOpen;
+double   g_barClose;
+string   g_printStr = "";
 ulong    g_startMsecCount;
 
 //+------------------------------------------------------------------+
@@ -54,28 +54,28 @@ void OnStart()
    else
       bar = (int)i_Bar;
 
-   g_BarTime = iTime(NULL, 0, bar);
-   g_BarHigh = iHigh(NULL, 0, bar);
-   g_BarLow = iLow(NULL, 0, bar);
-   g_BarOpen = iOpen(NULL, 0, bar);
-   g_BarClose = iClose(NULL, 0, bar);
+   g_barTime = iTime(NULL, 0, bar);
+   g_barHigh = iHigh(NULL, 0, bar);
+   g_barLow = iLow(NULL, 0, bar);
+   g_barOpen = iOpen(NULL, 0, bar);
+   g_barClose = iClose(NULL, 0, bar);
    
    double prevBarHigh = iHigh(NULL, 0, bar + 1);
    double prevBarLow = iLow(NULL, 0, bar + 1);
    
-   AddPrint("Bar time: " + TimeToString(g_BarTime));
+   AddPrint("Bar time: " + TimeToString(g_barTime));
    AddPrint("Bar index: " + IntegerToString(bar));
 
    // checking at the bar level
-   if (prevBarHigh < g_BarHigh)
+   if (prevBarHigh < g_barHigh)
    {
-      if (prevBarLow < g_BarLow)
+      if (prevBarLow < g_barLow)
       {
          PrintResult(PBBS_TREND_UP);
          return;
       }
    }
-   else if (prevBarLow > g_BarLow)
+   else if (prevBarLow > g_barLow)
    {
       PrintResult(PBBS_TREND_DOWN);
       return;
@@ -87,7 +87,7 @@ void OnStart()
    }
 
    // if there is a breakout on both sides, we look for which side broke first
-   switch (PrevBarBreakSide(g_BarTime, prevBarHigh, prevBarLow))
+   switch (PrevBarBreakSide(g_barTime, prevBarHigh, prevBarLow))
    {
       case PBBS_TREND_NONE:
          PrintResult(PBBS_TREND_NONE);
@@ -109,7 +109,7 @@ void OnStart()
  */
 void AddPrint(string addStr)
 {
-   g_PrintStr += addStr + "\n";
+   g_printStr += addStr + "\n";
 }
 
 //+------------------------------------------------------------------+
@@ -178,7 +178,7 @@ void PrintResult(PBBS_TREND trend)
 
    long chartId = ChartID();
    string arrowName = "PBBS_Trend";
-   double arrowPrice = g_BarHigh + (_Point * 10);
+   double arrowPrice = g_barHigh + (_Point * 10);
 
    ObjectDelete(chartId, arrowName);
 
@@ -187,7 +187,7 @@ void PrintResult(PBBS_TREND trend)
       case PBBS_TREND_NONE:
       {
          AddPrint("Trend: NONE");
-         ObjectCreate(chartId, arrowName, OBJ_ARROW, 0, g_BarTime, arrowPrice);
+         ObjectCreate(chartId, arrowName, OBJ_ARROW, 0, g_barTime, arrowPrice);
          ObjectSetInteger(chartId, arrowName, OBJPROP_ARROWCODE, 220);
          ObjectSetInteger(chartId, arrowName, OBJPROP_COLOR, clrOrange);
          break;
@@ -195,30 +195,30 @@ void PrintResult(PBBS_TREND trend)
       case PBBS_TREND_UP:
       {
          AddPrint("Trend: UP");
-         ObjectCreate(chartId, arrowName, OBJ_ARROW_UP, 0, g_BarTime, arrowPrice);
+         ObjectCreate(chartId, arrowName, OBJ_ARROW_UP, 0, g_barTime, arrowPrice);
          ObjectSetInteger(chartId, arrowName, OBJPROP_COLOR, clrGreen);
          break;
       }
       case PBBS_TREND_DOWN:
       {
          AddPrint("Trend: DOWN");
-         ObjectCreate(chartId, arrowName, OBJ_ARROW_DOWN, 0, g_BarTime, arrowPrice);
+         ObjectCreate(chartId, arrowName, OBJ_ARROW_DOWN, 0, g_barTime, arrowPrice);
          ObjectSetInteger(chartId, arrowName, OBJPROP_COLOR, clrRed);
          break;
       }
       default:
       {
-         AddPrint("LIKELY TREND: "+ (g_BarOpen > g_BarClose ? "DOWN" : "UP"));
+         AddPrint("LIKELY TREND: "+ (g_barOpen > g_barClose ? "DOWN" : "UP"));
          AddPrint("You should not hope for this calculation, since it considers open and close prices.");
 
-         ObjectCreate(chartId, arrowName, OBJ_ARROW_STOP, 0, g_BarTime, arrowPrice);
+         ObjectCreate(chartId, arrowName, OBJ_ARROW_STOP, 0, g_barTime, arrowPrice);
          ObjectSetInteger(chartId, arrowName, OBJPROP_COLOR, clrRed);
          break;
       }
    }
 
-   Print(g_PrintStr);
-   Comment(g_PrintStr);
+   Print(g_printStr);
+   Comment(g_printStr);
 
    ObjectSetInteger(chartId, arrowName, OBJPROP_ANCHOR, ANCHOR_BOTTOM);
    ChartRedraw(chartId);
