@@ -23,7 +23,7 @@ void OnStart()
       return;
    }
 
-   Print("HistoryDealsTotal: ", HistoryDealsTotal());
+   PrintFormat("History deals: %d (from %s to %s)", HistoryDealsTotal(), TimeToString(i_DealHistoryFrom), TimeToString(i_DealHistoryTo));
    
    ulong ticket;
    for (int i = HistoryDealsTotal() - 1; i >= 0; i--)
